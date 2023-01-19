@@ -5,25 +5,23 @@ import {BaseController} from "./BaseController";
 export class BankController extends BaseController {
     //create new bank
 
+
     /**
      * todo: use relevant name
      * @param ctx
      */
-    async create(ctx: any) {
+    async createBank(ctx: any,) {
         try {
             const bankRepository = connection.getRepository(Bank);
             const data: any = ctx.request['body'];
-            // todo: you can use type string[]
-            const inputFields: any[] = ['name', 'address'];
-            const error: any = {};
-
+            // todo: you can use type string[] //done
+            const inputFields: string[] = ['name', 'address'];
+             const error: any = {};
+            console.log(inputFields);
             inputFields.forEach(field => {
-                // todo: you may use "if(!data[field])"
-                if ((!data.hasOwnProperty(field)) || data[field] == "") {
-                    try {
-                        error[field] = `${field} is required`;
-                    } catch (e) {
-                    }
+                // todo: you may use "if(!data[field])" //
+                if (!data[field]) {
+                    error[field] = `${field} is required`;
                 }
             });
             if (JSON.stringify(error) !== '{}') {
@@ -41,38 +39,35 @@ export class BankController extends BaseController {
 
     // update bank by bankId
 
-    // todo: rename updateBankById
-    public async update(ctx: any) {
+    // todo: rename updateBankById //done
+    public async updateById(ctx: any) {
         try {
             const bankRepository = connection.getRepository(Bank);
             const data: any = ctx.request['body'];
-            // todo: use variable i.e bandId
-            data.id = ctx.params.id;
-            const inputFields: any[] = ['name', 'address'];
+            // todo: use variable i.e bandId //Done
+            const bankId = ctx.params.id;
+            const inputFields: string[] = ['name', 'address'];
             const error: any = {};
             inputFields.forEach(field => {
-                if ((data.hasOwnProperty(field)) && data[field] == "") {
-                    try {
-                        error[field] = `${field} is required`;
-                    } catch (e) {
-                    }
+                if (data.hasOwnProperty(field) && data[field]== "") {
+                    error[field] = `${field} is required`;
                 }
             });
-            const checkId = await bankRepository.find({where: {id: data.id}});
-            console.log(checkId);
-            // todo: you can do with array.length
-            if (JSON.stringify(checkId) === '[]') {
+            const checkIfBankExist = await bankRepository.find({where: {id: bankId}});
+
+            // todo: you can do with array.length //done
+            if (checkIfBankExist.length < 1) {
                 error['notExist'] = "this bank does not exist";
             }
+            // console.log(error);
             if (JSON.stringify(error) !== '{}') {
                 return await super.response(ctx, 400, error);
             }
-
-            await bankRepository.update(data.id, data);
+            await bankRepository.update(bankId, data);
             return await super.response(ctx, 201, "Bank Updated successfully");
         } catch (e: any) {
             console.log(e);
-            return await super.response(ctx, 500, "internal Server Error");
+            return await super.response(ctx, 500, "internal Server Error!");
 
         }
     }
@@ -83,9 +78,8 @@ export class BankController extends BaseController {
             return ctx.body = await connection.getRepository(Bank).find();
         } catch (e) {
             console.log(e);
-            return await super.response(ctx, 500, "internal Server Error");
+            return await super.response(ctx, 500, "Internal Server Error");
         }
-
     }
 
     //get bank by bankId
@@ -94,20 +88,11 @@ export class BankController extends BaseController {
         try {
             const bankRepository = connection.getRepository(Bank);
             const id = ctx.params.id;
-            // todo: this can be return and checked both at same time
-            const checkId = await bankRepository.find({where: {id: id}});
-            const error: any = {};
-
-            if (JSON.stringify(checkId) === '[]') {
-                error['notExist'] = "this bank does not exist";
+            // todo: this can be return and checked both at same time //done
+            const checkIfBankExist = await bankRepository.find({where: {id: id}});
+            if (checkIfBankExist.length > 0) {
+                return super.response(ctx, 202, "This Bank does not Exist");
             }
-
-            if (JSON.stringify(error) !== '{}') {
-                return await super.response(ctx, 400, error);
-            }
-            // todo: no need to use connection
-            return ctx.body = await connection.getRepository(Bank).findOneOrFail({where: {id: id}});
-
         } catch (e) {
             console.log(e);
             return await super.response(ctx, 500, "internal Server Error");

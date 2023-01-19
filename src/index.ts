@@ -16,8 +16,8 @@ app.use(bodyParser());
 const bankControllerInstance = new BankController();
 router.post('/customer', CustomerController.create)
 router.post('/account', AccountController.create)
-router.post('/api/bank', bankControllerInstance.create)
-router.put('/api/bank/:id', bankControllerInstance.update)
+router.post('/api/bank', bankControllerInstance.createBank)
+router.put('/api/bank/:id', bankControllerInstance.updateById)
 router.get('/api/bank', bankControllerInstance.getAllBank)
 router.get('/api/bank/:id', bankControllerInstance.getBankById)
 router.delete('/api/bank/:id', bankControllerInstance.deleteBankById)
