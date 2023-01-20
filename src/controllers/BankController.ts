@@ -90,9 +90,10 @@ export class BankController extends BaseController {
             const id = ctx.params.id;
             // todo: this can be return and checked both at same time //done
             const checkIfBankExist = await bankRepository.find({where: {id: id}});
-            if (checkIfBankExist.length > 0) {
+            if (checkIfBankExist.length < 1) {
                 return super.response(ctx, 202, "This Bank does not Exist");
             }
+            return ctx.body=checkIfBankExist;
         } catch (e) {
             console.log(e);
             return await super.response(ctx, 500, "internal Server Error");
