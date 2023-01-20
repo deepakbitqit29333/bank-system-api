@@ -4,8 +4,8 @@ export const connection = new DataSource({
         host: "localhost",
         username: "postgres",
         password: "12345678",
-        database: 'task2',
-        synchronize: false,
+        database: 'bankSystem',
+        synchronize: true,
         entities: ["src/entities/**.ts"]
     }
 );

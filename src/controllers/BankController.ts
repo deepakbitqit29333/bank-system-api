@@ -1,13 +1,16 @@
 import {Bank} from "../entities/Bank";
 import {BaseController} from "./BaseController";
 import {DataSource, Repository} from "typeorm";
+
 export class BankController extends BaseController {
-           private repo:Repository<any>;
-           private inputFields:string[]=['name','address'];
-        constructor(connection:DataSource) {
-            super();
-            this.repo=connection.getRepository(Bank);
-        }
+    private bankRepository: Repository<any>;
+    private inputFields: string[] = ['name', 'address'];
+
+    constructor(dbConnection: DataSource) {
+        super(dbConnection);
+        this.bankRepository = dbConnection.getRepository(Bank);
+    }
+
     /**
      * todo: use relevant name
      * @param ctx
@@ -15,7 +18,7 @@ export class BankController extends BaseController {
     async createBank(ctx: any) {
         try {
             const data: any = ctx.request['body'];
-            const error:any={};
+            const error: any = {};
             // todo: you can use type string[] //done
             this.inputFields.forEach(field => {
                 // todo: you may use "if(!data[field])" //
@@ -24,15 +27,15 @@ export class BankController extends BaseController {
                 }
             });
             if (JSON.stringify(error) !== '{}') {
-                return await super.response(ctx, 400, error);
+                return  this.response(ctx, 400, error);
             }
 
-            await this.repo.save(data);
+            await this.bankRepository.save(data);
             // todo: try calling constructor and use "this"
-            return await super.response(ctx, 201, "Bank created successfully");
+            return  this.response(ctx, 201, "Bank created successfully");
         } catch (e: any) {
             console.log(e);
-            return await super.response(ctx, 500, "internal server error");
+            return  this.response(ctx, 500, "internal server error");
         }
     }
 
@@ -43,14 +46,14 @@ export class BankController extends BaseController {
         try {
             const data: any = ctx.request['body'];
             // todo: use variable i.e bandId //Done
-            const error:any={};
+            const error: any = {};
             const bankId = ctx.params.id;
             this.inputFields.forEach(field => {
-                if (data.hasOwnProperty(field) && data[field]== "") {
+                if (data.hasOwnProperty(field) && data[field] == "") {
                     error[field] = `${field} is required`;
                 }
             });
-            const checkIfBankExist = await this.repo.find({where: {id: bankId}});
+            const checkIfBankExist = await this.bankRepository.find({where: {id: bankId}});
 
             // todo: you can do with array.length //done
             if (checkIfBankExist.length < 1) {
@@ -58,13 +61,13 @@ export class BankController extends BaseController {
             }
             // console.log(error);
             if (JSON.stringify(error) !== '{}') {
-                return await super.response(ctx, 400, error);
+                return  this.response(ctx, 400, error);
             }
-            await this.repo.update(bankId, data);
-            return await super.response(ctx, 201, "Bank Updated successfully");
+            await this.bankRepository.update(bankId, data);
+            return this.response(ctx, 201, "Bank Updated successfully");
         } catch (e: any) {
             console.log(e);
-            return await super.response(ctx, 500, "internal Server Error!");
+            return  this.response(ctx, 500, "internal Server Error!");
 
         }
     }
@@ -72,10 +75,10 @@ export class BankController extends BaseController {
     //get all bank
     public async getAllBank(ctx: any) {
         try {
-            return ctx.body = await this.repo.find();
+            return ctx.body = await this.bankRepository.find();
         } catch (e) {
             console.log(e);
-            return await super.response(ctx, 500, "Internal Server error");
+            return this.response(ctx, 500, "Internal Server error");
         }
     }
 
@@ -85,26 +88,26 @@ export class BankController extends BaseController {
         try {
             const id = ctx.params.id;
             // todo: this can be return and checked both at same time //done
-            const checkIfBankExist = await this.repo.find({where: {id: id}});
+            const checkIfBankExist = await this.bankRepository.findOne({where: {id: id}});
             if (checkIfBankExist.length < 1) {
-                return super.response(ctx, 202, "This Bank does not Exist");
+                return this.response(ctx, 202, "This Bank does not Exist");
             }
-            return ctx.body=checkIfBankExist;
+            return ctx.body = checkIfBankExist;
         } catch (e) {
             console.log(e);
-            return await super.response(ctx, 500, "internal Server error");
+            return this.response(ctx, 500, "internal Server error");
         }
     }
 
     //delete bak by BankId
     async deleteBankById(ctx: any) {
         const id = ctx.params.id;
-        const response = await this.repo.softDelete({id: id});
+        const response = await this.bankRepository.softDelete({id: id});
 
         if (response.affected !== 0) {
             return super.response(ctx, 200, "Deleted Successfully!")
         } else {
-            return super.response(ctx, 200, "No Record Found!");
+            return this.response(ctx, 200, "No Record Found!");
         }
     }
 }

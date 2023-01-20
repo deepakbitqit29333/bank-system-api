@@ -1,4 +1,4 @@
-import {Entity, Column, PrimaryGeneratedColumn, Index, ManyToOne, ManyToMany, JoinTable} from "typeorm";
+import {Entity, Column, PrimaryGeneratedColumn, Index, ManyToOne, ManyToMany, JoinTable, Generated} from "typeorm";
 import {BaseEntity} from "./BaseEntity";
 import {Branch} from "./Branch";
 import {Customer} from "./Customer";
@@ -13,6 +13,7 @@ export class Account extends BaseEntity {
     @PrimaryGeneratedColumn()
     id: number;
     @Column({unique: true})
+    @Generated('increment')
     @Index()
     accountNo: number;
     @Column({type: "enum", enum: AccountType})
