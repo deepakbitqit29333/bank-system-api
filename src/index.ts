@@ -12,17 +12,16 @@ connection.initialize().then(() => console.log("connected to database"))
     .catch(err => console.error("error using data source initialize", err));
 
 app.use(bodyParser());
-
-const bankControllerInstance = new BankController();
+const bankControllerInstance = new BankController(connection);
 router.post('/customer', CustomerController.create)
 router.post('/account', AccountController.create)
-router.post('/api/bank', bankControllerInstance.createBank)
-router.put('/api/bank/:id', bankControllerInstance.updateById)
-router.get('/api/bank', bankControllerInstance.getAllBank)
-router.get('/api/bank/:id', bankControllerInstance.getBankById)
-router.delete('/api/bank/:id', bankControllerInstance.deleteBankById)
+router.post('/api/bank', (ctx)=>bankControllerInstance.createBank(ctx))
+router.put('/api/bank/:id', (ctx)=>bankControllerInstance.updateById(ctx))
+router.get('/api/bank', ctx => bankControllerInstance.getAllBank(ctx))
+router.get('/api/bank/:id', (ctx)=>bankControllerInstance.getBankById(ctx))
+router.delete('/api/bank/:id',(ctx)=> bankControllerInstance.deleteBankById(ctx))
 
-
+// console.log(bankControllerInstance.uiu);
 app.use(router.routes()).use(router.allowedMethods());
 const port = 8085;
 
