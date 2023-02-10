@@ -7,13 +7,13 @@ import {BankController} from "./BankController";
 
 export class BranchController extends BaseController {
     branchRepository: Repository<Branch>;
-    bankRepository:Repository<Bank>
+    bankRepository: Repository<Bank>
     inputFields: string[] = ['name', 'address'];
 
     constructor(dbConnection: DataSource) {
         super(dbConnection);
         this.branchRepository = dbConnection.getRepository(Branch);
-        this.bankRepository=dbConnection.getRepository(Bank);
+        this.bankRepository = dbConnection.getRepository(Bank);
 
     }
 
@@ -42,6 +42,44 @@ export class BranchController extends BaseController {
             data.bank = bankEntity;
             await this.branchRepository.save(data);
             return this.response(ctx, 201, "Branch created successfully");
+        } catch (e: any) {
+            return this.response(ctx, 500, e.stack);
+        }
+    }
+
+    public async updateBranchById(ctx: any) {
+        try {
+            const bankId: number = parseInt(ctx.params.bankId);
+            const branchId: number = parseInt(ctx.params.branchId);
+            const error: any = {};
+            const data: any = ctx.request.body;
+            this.inputFields.forEach(field => {
+                if (data.hasOwnProperty(field) && data[field] == "") {
+                    error[field] = `${field} is required`;
+                }
+            });
+            const checkIfRecordExist = await this.branchRepository.findOne(
+                {
+                    relations:
+                        {
+                            bank: true
+                        },
+                    where:
+                        {
+                            bank:
+                                {id: bankId},
+                            id: branchId
+                        }
+                });
+            console.log(checkIfRecordExist);
+            if (!checkIfRecordExist) {
+                error['notExist'] = "Bank or Branch does not exist!";
+            }
+            if (JSON.stringify(error) !== '{}') {
+                return this.response(ctx, 400, error);
+            }
+            await this.branchRepository.update(branchId, data)
+            return this.response(ctx, 200, "Branch updated Successfully");
         } catch (e: any) {
             return this.response(ctx, 500, e.stack);
         }

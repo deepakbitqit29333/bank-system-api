@@ -9,6 +9,7 @@ export class BankController extends BaseController {
     constructor(dbConnection: DataSource) {
         super(dbConnection);
         this.bankRepository = dbConnection.getRepository(Bank);
+        // this.createBank=this.createBank.bind(this);
     }
 
     /**
@@ -27,22 +28,22 @@ export class BankController extends BaseController {
                 }
             });
             if (JSON.stringify(error) !== '{}') {
-                return  this.response(ctx, 400, error);
+                return this.response(ctx, 400, error);
             }
 
             await this.bankRepository.save(data);
             // todo: try calling constructor and use "this"
-            return  this.response(ctx, 201, "Bank created successfully");
+            return this.response(ctx, 201, "Bank created successfully");
         } catch (e: any) {
             console.log(e);
-            return  this.response(ctx, 500, "internal server error");
+            return this.response(ctx, 500, "internal server error");
         }
     }
 
     // update bank by bankId
 
     // todo: rename updateBankById //done
-    public async updateById(ctx: any) {
+    public async updateBankById(ctx: any) {
         try {
             const data: any = ctx.request['body'];
             // todo: use variable i.e bandId //Done
@@ -61,13 +62,13 @@ export class BankController extends BaseController {
             }
             // console.log(error);
             if (JSON.stringify(error) !== '{}') {
-                return  this.response(ctx, 400, error);
+                return this.response(ctx, 400, error);
             }
             await this.bankRepository.update(bankId, data);
             return this.response(ctx, 201, "Bank Updated successfully");
         } catch (e: any) {
             console.log(e);
-            return  this.response(ctx, 500, "internal Server Error!");
+            return this.response(ctx, 500, "internal Server Error!");
 
         }
     }
